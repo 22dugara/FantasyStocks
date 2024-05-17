@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FantasyStocks</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+</head>
+<body>
+    <header id="hero">
+        <nav>
+            <ul>
+                <li><a href="#hero">Home</a></li>
+                <li><a href="#goal">Goal</a></li>
+                <li><a href="#features">Key Features</a></li>
+                <li><a href="#updates">Updates</a></li>
+            </ul>
+        </nav>
+        <div class="hero">
+            <h1>FantasyStocks</h1>
+            <p>Experience the excitement of the stock market, learn, and compete!</p>
+            <div class="buttons">
+                <a href="{% url 'signup' %}" class="btn">Sign Up</a>
+                <a href="{% url 'login' %}" class="btn">Log In</a>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <section id="goal" class="section">
+            <div class="content">
+                <h2>Our Goal</h2>
+                <p>FantasyStocks is a gamified stock trading platform designed to educate and engage users in the world of finance. Compete with friends, learn about the stock market, and improve your investment skills.</p>
+            </div>
+        </section>
+
+        <section id="features" class="section">
+            <div class="content">
+                <h2>Key Features</h2>
+                <div class="features-container">
+                    <div class="feature-box">
+                        <h3>Gamified Stock Trading Experience</h3>
+                        <p>Experience the thrill of stock trading with a competitive edge. Create leagues, compete with friends, and see who can build the best portfolio.</p>
+                    </div>
+                    <div class="feature-box">
+                        <h3>Educational Resources and Tutorials</h3>
+                        <p>Access a wealth of resources and tutorials to improve your understanding of the stock market. Learn the basics of investing, advanced strategies, and everything in between.</p>
+                    </div>
+                    <div class="feature-box">
+                        <h3>Real-Time Market Data and Updates</h3>
+                        <p>Stay up-to-date with real-time market data and updates. Make informed decisions with the latest information at your fingertips.</p>
+                    </div>
+                    <div class="feature-box">
+                        <h3>Community Leagues and Competitions</h3>
+                        <p>Join or create leagues and compete in weekly stock trading challenges. Engage with a community of like-minded individuals and share your successes and strategies.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="updates" class="section">
+            <div class="content">
+                <h2>What's New</h2>
+                <div class="banner">
+                    <h3>New Feature: League Competitions!</h3>
+                    <p>Join or create leagues with friends to compete in weekly stock trading challenges.</p>
+                </div>
+                <div class="banner">
+                    <h3>Upcoming Event: Investment Webinar</h3>
+                    <p>Learn the basics of investing from experts in our upcoming webinar. Sign up today!</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 FantasyStocks. All rights reserved.</p>
+    </footer>
+    <script>
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            });
+        });
+    </script>
+</body>
+</html>
