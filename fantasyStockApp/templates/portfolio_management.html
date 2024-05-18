@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portfolio Management</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/portal.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .cash-info {
+            margin-top: 20px;
+        }
+        .transact-button {
+            margin-top: 20px;
+            display: inline-block;
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            border-radius: 4px;
+        }
+        .transact-button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <div class="portal-container">
+        <nav class="sidebar">
+            <ul>
+                <li><a href="{% url 'user_portal' %}">Dashboard</a></li>
+                <li><a href="{% url 'portfolio_management' %}">Portfolio Management</a></li>
+                <li><a href="{% url 'league' %}">Leagues</a></li>
+                <li><a href="#">Rules</a></li>
+            </ul>
+        </nav>
+        <div class="main-content">
+            <header>
+                <div class="header-content">
+                    <h1>Portfolio Management</h1>
+                    <a href="{% url 'logout' %}" class="logout-button">Log Out</a>
+                </div>
+            </header>
+            <section>
+                {% if message %}
+                    <p>{{ message }}</p>
+                {% else %}
+                    <h2>Your Portfolio</h2>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Stock</th>
+                                <th>Quantity</th>
+                                <th>Purchase Price</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for asset in assets %}
+                            <tr>
+                                <td>{{ asset.asset.name }} ({{ asset.asset.ticker }})</td>
+                                <td>{{ asset.quantity }}</td>
+                                <td>${{ asset.purchase_price }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    <div class="cash-info">
+                        <h3>Available Cash: ${{ cash }}</h3>
+                    </div>
+                    <a href="#" class="transact-button">Transact</a>
+                {% endif %}
+            </section>
+        </div>
+    </div>
+</body>
+</html>
