@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transact</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/portal.css' %}">
+    <style>
+        .transact-container {
+            padding: 20px;
+        }
+        .transact-form {
+            display: flex;
+            flex-direction: column;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .transact-form div {
+            margin-bottom: 10px;
+        }
+        .transact-form label {
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .transact-form input, .transact-form select {
+            padding: 8px;
+            font-size: 16px;
+            width: 100%;
+        }
+        .transact-form button {
+            padding: 10px;
+            font-size: 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .transact-form button:hover {
+            background-color: #45a049;
+        }
+        .stock-info {
+            margin-top: 20px;
+        }
+        .messages {
+            margin-bottom: 20px;
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <div class="portal-container">
+        <nav class="sidebar">
+            <ul>
+                <li><a href="{% url 'user_portal' %}">Dashboard</a></li>
+                <li><a href="{% url 'portfolio_management' %}">Portfolio Management</a></li>
+                <li><a href="{% url 'league' %}">Leagues</a></li>
+                <li><a href="#">Rules</a></li>
+            </ul>
+        </nav>
+        <div class="main-content">
+            <header>
+                <div class="header-content">
+                    <h1>Transact</h1>
+                    <a href="{% url 'logout' %}" class="logout-button">Log Out</a>
+                </div>
+            </header>
+            <section class="transact-container">
+                <div class="messages">
+                    {% if messages %}
+                        {% for message in messages %}
+                            <p>{{ message }}</p>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+                <form class="transact-form" method="post">
+                    {% csrf_token %}
+                    {{ form.as_p }}
+                    <button type="submit">Submit</button>
+                </form>
+                <div class="stock-info">
+                    <!-- Placeholder for stock price and relevant information -->
+                </div>
+            </section>
+        </div>
+    </div>
+</body>
+</html>

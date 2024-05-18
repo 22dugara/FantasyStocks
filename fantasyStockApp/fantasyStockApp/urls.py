@@ -32,6 +32,7 @@ urlpatterns = [
     path('league/create/', create_league, name='create_league'),
     path('league/join/', join_league, name='join_league'),
     path('portfolio/', include('portfolio.urls')),
+    path('trading/', include('trading.urls')),
    
 ]
 """path('users/', user_views.user_dashboard, name='user_dashboard'),

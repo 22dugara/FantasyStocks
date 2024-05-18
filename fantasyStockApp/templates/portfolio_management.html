@@ -71,7 +71,7 @@
                         <tbody>
                             {% for asset in assets %}
                             <tr>
-                                <td>{{ asset.asset.name }} ({{ asset.asset.ticker }})</td>
+                                <td>{{ asset.stock.name }} ({{ asset.stock.ticker }})</td>
                                 <td>{{ asset.quantity }}</td>
                                 <td>${{ asset.purchase_price }}</td>
                             </tr>
@@ -81,7 +81,7 @@
                     <div class="cash-info">
                         <h3>Available Cash: ${{ cash }}</h3>
                     </div>
-                    <a href="#" class="transact-button">Transact</a>
+                    <a href="{% url 'transact' %}" class="transact-button">Transact</a>
                 {% endif %}
             </section>
         </div>
