@@ -2,6 +2,7 @@ from portfolio.models import Stock, Portfolio, PortfolioAsset
 from .models import Transaction
 from decimal import Decimal
 
+#Use some sort of finance org API to check for these
 def validateStock(ticker):
     # For now, we assume this function always returns True
     # Later, you can implement logic to check if the stock ticker exists in the real world
@@ -60,6 +61,6 @@ def executeTrade(user, transaction_type, portfolio, stock, quantity, price):
 
 
 
-#implement this
+#implement this. Check if a certain trade will violate the rules of a portfolio (ie. the diversity quotas)
 def portfolioRulesCheck():
     return True

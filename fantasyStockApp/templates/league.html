@@ -3,9 +3,51 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Portal - League</title>
+    <title>League</title>
     {% load static %}
     <link rel="stylesheet" href="{% static 'css/portal.css' %}">
+    <style>
+        .league-container {
+            padding: 20px;
+        }
+        .members-list {
+            margin-top: 20px;
+        }
+        .members-list ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        .members-list li {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+        .start-league-button {
+            margin-top: 20px;
+            display: inline-block;
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            border-radius: 4px;
+        }
+        .start-league-button:hover {
+            background-color: #45a049;
+        }
+        .enter-draft-button {
+            margin-top: 20px;
+            display: inline-block;
+            background-color: #008CBA;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            border-radius: 4px;
+        }
+        .enter-draft-button:hover {
+            background-color: #007B9A;
+        }
+    </style>
 </head>
 <body>
     <div class="portal-container">
@@ -20,20 +62,95 @@
         <div class="main-content">
             <header>
                 <div class="header-content">
-                    <h1>Welcome!</h1>
+                    <h1>League</h1>
                     <a href="{% url 'logout' %}" class="logout-button">Log Out</a>
                 </div>
             </header>
-            <section>
-                {% if in_league %}
-                    <p>You are in league: {{ league_name }}</p>
+            <section class="league-container">
+                {% if league %}
+                    <h2>{{ league.name }}</h2>
+                    <p>{{ league.description }}</p>
+                    {% if is_owner %}
+                        <div class="members-list">
+                            <h3>Members:</h3>
+                            <ul>
+                                {% for member in members %}
+                                    <li>{{ member.user.username }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        <form method="post">
+                            {% csrf_token %}
+                            <button type="submit" name="start_league" class="start-league-button">Start League</button>
+                        </form>
+                    {% endif %}
+                    {% if league.started %}
+                        <a href="#" class="enter-draft-button" id="enter-draft-button">Enter Draft</a>
+                    {% else %}
+                        <p id="draft-status-message">Waiting for the league to start...</p>
+                    {% endif %}
                 {% else %}
-                    <p>You are not in a league.</p>
+                    <p>You are not part of any league. Please join or create a league.</p>
                     <a href="{% url 'create_league' %}" class="btn">Create League</a>
                     <a href="{% url 'join_league' %}" class="btn">Join League</a>
                 {% endif %}
             </section>
         </div>
     </div>
+    <script>
+        const leagueName = "{{ league.name|escapejs|slugify }}"; // Ensure the league name is sanitized
+        const user = "{{ request.user.username }}";
+        const started = "{{ league.started|yesno:'true,false' }}" === 'true'; // Convert to JS boolean
+
+        const chatSocket = new WebSocket(
+            'ws://' + window.location.host + '/ws/league/' + encodeURIComponent(leagueName) + '/'
+        );
+
+        chatSocket.onmessage = function(e) {
+            const data = JSON.parse(e.data);
+            const message = data.message;
+
+            if (message === 'The league has started! You can now enter the draft.') {
+                const draftStatusMessage = document.getElementById('draft-status-message');
+                if (draftStatusMessage) {
+                    draftStatusMessage.remove();
+                }
+
+                if (!document.getElementById('enter-draft-button')) {
+                    const enterDraftButton = document.createElement('a');
+                    enterDraftButton.href = '#';
+                    enterDraftButton.className = 'enter-draft-button';
+                    enterDraftButton.textContent = 'Enter Draft';
+                    enterDraftButton.id = 'enter-draft-button';
+
+                    document.querySelector('.league-container').appendChild(enterDraftButton);
+                }
+            }
+        };
+
+        chatSocket.onclose = function(e) {
+            console.error('Chat socket closed unexpectedly');
+        };
+
+        // Check if the league has already started when the page loads
+        window.onload = function() {
+            if (started) {
+                const draftStatusMessage = document.getElementById('draft-status-message');
+                if (draftStatusMessage) {
+                    draftStatusMessage.remove();
+                }
+
+                if (!document.getElementById('enter-draft-button')) {
+                    const enterDraftButton = document.createElement('a');
+                    enterDraftButton.href = '#';
+                    enterDraftButton.className = 'enter-draft-button';
+                    enterDraftButton.textContent = 'Enter Draft';
+                    enterDraftButton.id = 'enter-draft-button';
+
+                    document.querySelector('.league-container').appendChild(enterDraftButton);
+                }
+            }
+        };
+    </script>
 </body>
 </html>

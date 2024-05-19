@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'education',
     'rest_framework',
     'rest_framework.authtoken',
+    'channels',
 ]
 
 MIDDLEWARE = [
@@ -77,8 +78,14 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'fantasyStockApp.wsgi.application'
+ASGI_APPLICATION = 'fantasyStockApp.asgi.application'  # Replace 'your_project_name' with your project name
 
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels.layers.InMemoryChannelLayer',  # Using in-memory layer for simplicity
+    },
 
+}
 # Database
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
 

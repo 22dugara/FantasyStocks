@@ -40,3 +40,5 @@ def logout_view(request):
 @login_required
 def user_portal(request):
     return render(request, 'user_portal.html', {'username': request.user.username})
+
+
