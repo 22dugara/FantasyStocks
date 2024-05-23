@@ -8,6 +8,10 @@ class League(models.Model):
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='owned_leagues')
     key = models.CharField(max_length=20, default = "")
     started = models.BooleanField(default=False)
+    draftDone = models.BooleanField(default=False)
+    length = models.IntegerField(default=7) 
+    current_week = models.IntegerField(default=1)
+    next_week_date = models.DateField(null=True, blank=True)
 
     def __str__(self):
         return self.name
@@ -16,6 +20,9 @@ class LeagueMembership(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     league = models.ForeignKey(League, on_delete=models.CASCADE)
     joined_at = models.DateTimeField(auto_now_add=True)
+    wins = models.IntegerField(default=0)  # New attribute
+    losses = models.IntegerField(default=0)  # New attribute
+    ties = models.IntegerField(default=0)  # New attribute
 
     def __str__(self):
         return f"{self.user.username} in {self.league.name}"

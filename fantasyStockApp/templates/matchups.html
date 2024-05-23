@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Matchups</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/portal.css' %}">
+    <style>
+        .matchups-container {
+            display: flex;
+        }
+        .matchups-table {
+            width: 60%;
+            margin-right: 20px;
+        }
+        .opponent-info {
+            width: 40%;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        table, th, td {
+            border: 1px solid black;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+        }
+        .skip-week-button {
+            display: inline-block;
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            border-radius: 4px;
+            margin-top: 10px;
+        }
+        .skip-week-button:hover {
+            background-color: #45a049;
+        }
+        .user-record {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="portal-container">
+        <nav class="sidebar">
+            <ul>
+                <li><a href="{% url 'user_portal' %}">Dashboard</a></li>
+                <li><a href="{% url 'portfolio_management' %}">Portfolio Management</a></li>
+                <li><a href="{% url 'league' %}">Leagues</a></li>
+                <li><a href="{% url 'matchups' %}">Matchups</a></li>
+                <li><a href="#">Rules</a></li>
+            </ul>
+        </nav>
+        <div class="main-content">
+            <header>
+                <div class="header-content">
+                    <h1>Matchups for {{ league.name }}</h1>
+                    <a href="{% url 'logout' %}" class="logout-button">Log Out</a>
+                </div>
+            </header>
+            <section class="matchups-container">
+                <div class="matchups-table">
+                    <h2>Your Matchups</h2>
+                    <p>Current Week: {{ league.current_week }}</p>
+                    <p>Next Week Begins On: {{ league.next_week_date }}</p>
+                    {% if league.owner == request.user %}
+                        <form method="post">
+                            {% csrf_token %}
+                            <button type="submit" name="skip_week" class="skip-week-button">Skip to Next Week</button>
+                        </form>
+                    {% endif %}
+                    <div class="user-record">
+                        <h3>Your Record:</h3>
+                        <p>Wins: {{ user_record.wins }}</p>
+                        <p>Losses: {{ user_record.losses }}</p>
+                        <p>Ties: {{ user_record.ties }}</p>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Week</th>
+                                <th>Opponent</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for matchup in matchups %}
+                                <tr>
+                                    <td>{{ matchup.week }}</td>
+                                    <td>
+                                        {% if matchup.user1 == request.user %}
+                                            {{ matchup.user2.username }}
+                                        {% else %}
+                                            {{ matchup.user1.username }}
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <div class="opponent-info">
+                    <h2>Current Opponent</h2>
+                    {% if current_matchup %}
+                        <p>Opponent: {{ opponent.username }}</p>
+                        <h3>Opponent's Portfolio</h3>
+                        <ul>
+                            {% for asset in opponent_assets %}
+                                <li>{{ asset.quantity }} units of {{ asset.asset.name }} at ${{ asset.purchase_price }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p>No opponent for the current week.</p>
+                    {% endif %}
+                </div>
+            </section>
+        </div>
+    </div>
+</body>
+</html>

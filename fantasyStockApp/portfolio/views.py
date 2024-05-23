@@ -29,6 +29,13 @@ def portfolio_management(request):
     
     # Assuming we want to display the first portfolio for now
     portfolio = portfolios.first()
+    league = LeagueMembership.objects.filter(user=request.user)[0].league
+    if league.draftDone == False:            
+        context = {
+                'message': 'League Draft has not been completed.',
+            }
+        return render(request, 'portfolio_management.html', context)
+
     assets = PortfolioAsset.objects.filter(portfolio=portfolio)
     context = {
         'assets': assets,

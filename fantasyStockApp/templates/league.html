@@ -21,7 +21,8 @@
             padding: 10px;
             border-bottom: 1px solid #ddd;
         }
-        .start-league-button {
+        .start-league-button,
+        .end-draft-button {
             margin-top: 20px;
             display: inline-block;
             background-color: #4CAF50;
@@ -31,7 +32,8 @@
             text-decoration: none;
             border-radius: 4px;
         }
-        .start-league-button:hover {
+        .start-league-button:hover,
+        .end-draft-button:hover {
             background-color: #45a049;
         }
         .enter-draft-button {
@@ -56,6 +58,7 @@
                 <li><a href="{% url 'user_portal' %}">Dashboard</a></li>
                 <li><a href="{% url 'portfolio_management' %}">Portfolio Management</a></li>
                 <li><a href="{% url 'league' %}">Leagues</a></li>
+                <li><a href="{% url 'matchups' %}">Matchups</a></li>
                 <li><a href="#">Rules</a></li>
             </ul>
         </nav>
@@ -81,12 +84,16 @@
                         </div>
                         <form method="post">
                             {% csrf_token %}
-                            <button type="submit" name="start_league" class="start-league-button">Start League</button>
+                            {% if not league.started %}
+                                <button type="submit" name="start_league" class="start-league-button">Start League</button>
+                            {% elif not league.draftDone %}
+                                <button type="submit" name="end_draft" class="end-draft-button">End Draft</button>
+                            {% endif %}
                         </form>
                     {% endif %}
-                    {% if league.started %}
+                    {% if league.started and not league.draftDone %}
                         <a href="#" class="enter-draft-button" id="enter-draft-button">Enter Draft</a>
-                    {% else %}
+                    {% elif not league.started %}
                         <p id="draft-status-message">Waiting for the league to start...</p>
                     {% endif %}
                 {% else %}
@@ -101,6 +108,7 @@
         const leagueName = "{{ league.name|escapejs|slugify }}"; // Ensure the league name is sanitized
         const user = "{{ request.user.username }}";
         const started = "{{ league.started|yesno:'true,false' }}" === 'true'; // Convert to JS boolean
+        const draftDone = "{{ league.draftDone|yesno:'true,false' }}" === 'true'; // Convert to JS boolean
 
         const chatSocket = new WebSocket(
             'ws://' + window.location.host + '/ws/league/' + encodeURIComponent(leagueName) + '/'
@@ -126,6 +134,13 @@
                     document.querySelector('.league-container').appendChild(enterDraftButton);
                 }
             }
+
+            if (message === 'The draft is done!') {
+                const enterDraftButton = document.getElementById('enter-draft-button');
+                if (enterDraftButton) {
+                    enterDraftButton.remove();
+                }
+            }
         };
 
         chatSocket.onclose = function(e) {
@@ -134,7 +149,7 @@
 
         // Check if the league has already started when the page loads
         window.onload = function() {
-            if (started) {
+            if (started && !draftDone) {
                 const draftStatusMessage = document.getElementById('draft-status-message');
                 if (draftStatusMessage) {
                     draftStatusMessage.remove();
@@ -148,6 +163,11 @@
                     enterDraftButton.id = 'enter-draft-button';
 
                     document.querySelector('.league-container').appendChild(enterDraftButton);
+                }
+            } else if (draftDone) {
+                const enterDraftButton = document.getElementById('enter-draft-button');
+                if (enterDraftButton) {
+                    enterDraftButton.remove();
                 }
             }
         };
