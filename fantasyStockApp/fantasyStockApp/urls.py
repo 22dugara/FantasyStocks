@@ -34,6 +34,7 @@ urlpatterns = [
     path('portfolio/', include('portfolio.urls')),
     path('trading/', include('trading.urls')),
     path('matchups/', matchups_view, name='matchups'),
+    path('draft/<str:league_name>/', draft_view, name='draft'),
    
 ]
 """path('users/', user_views.user_dashboard, name='user_dashboard'),
