@@ -1,16 +1,25 @@
+import yfinance as yf
 from portfolio.models import Stock, Portfolio, PortfolioAsset
 from .models import Transaction
 from decimal import Decimal
 
 #Use some sort of finance org API to check for these
 def validateStock(ticker):
-    # For now, we assume this function always returns True
-    # Later, you can implement logic to check if the stock ticker exists in the real world
-    return True
+    try:
+        stock = yf.Ticker(ticker)
+        # Check if the ticker has a valid market price
+        if stock.info['regularMarketPrice'] is not None:
+            return True
+        else:
+            return False
+    except KeyError:
+        return False
 
 def getStockPrice(ticker):
     # For now, return a default price of 10 as a Decimal
-    return Decimal('10.00')
+    stock = yf.Ticker(ticker)
+    price = stock.info['regularMarketPrice']
+    return Decimal(str(price))
 
 def validateTransaction(transaction_type, portfolio, stock, quantity, price):
     if transaction_type == 'buy':
