@@ -86,13 +86,11 @@
                             {% csrf_token %}
                             {% if not league.started %}
                                 <button type="submit" name="start_league" class="start-league-button">Start League</button>
-                            {% elif not league.draftDone %}
-                                <button type="submit" name="end_draft" class="end-draft-button">End Draft</button>
                             {% endif %}
                         </form>
                     {% endif %}
                     {% if league.started and not league.draftDone %}
-                        <a href="#" class="enter-draft-button" id="enter-draft-button">Enter Draft</a>
+                        <a href="{% url 'draft' league.name %}" class="enter-draft-button" id="enter-draft-button">Enter Draft</a>
                     {% elif not league.started %}
                         <p id="draft-status-message">Waiting for the league to start...</p>
                     {% endif %}

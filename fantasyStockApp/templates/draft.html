@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Draft</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/portal.css' %}">
+    <style>
+        .draft-container {
+            padding: 20px;
+        }
+        .draft-form {
+            display: flex;
+            flex-direction: column;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .draft-form div {
+            margin-bottom: 10px;
+        }
+        .draft-form label {
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .draft-form input {
+            padding: 8px;
+            font-size: 16px;
+            width: 100%;
+        }
+        .draft-form button {
+            padding: 10px;
+            font-size: 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .draft-form button:hover {
+            background-color: #45a049;
+        }
+        .messages {
+            margin-bottom: 20px;
+            color: red;
+        }
+        .draft-order, .portfolios {
+            margin-top: 20px;
+        }
+        .draft-order ul, .portfolios ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        .draft-order li, .portfolios li {
+            margin-bottom: 5px;
+        }
+        .portfolios {
+            display: flex;
+            justify-content: space-between;
+        }
+        .portfolio {
+            width: 30%;
+        }
+        .portfolio ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        .portfolio li {
+            margin-bottom: 5px;
+        }
+        .end-draft-button {
+            display: inline-block;
+            background-color: #ff4c4c;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            border-radius: 4px;
+            margin-top: 10px;
+        }
+        .end-draft-button:hover {
+            background-color: #ff3333;
+        }
+    </style>
+</head>
+<body>
+    <div class="portal-container">
+        <nav class="sidebar">
+            <ul>
+                <li><a href="{% url 'user_portal' %}">Dashboard</a></li>
+                <li><a href="{% url 'portfolio_management' %}">Portfolio Management</a></li>
+                <li><a href="{% url 'league' %}">Leagues</a></li>
+                <li><a href="{% url 'matchups' %}">Matchups</a></li>
+                <li><a href="#">Rules</a></li>
+            </ul>
+        </nav>
+        <div class="main-content">
+            <header>
+                <div class="header-content">
+                    <h1>Draft for {{ league.name }}</h1>
+                    <a href="{% url 'logout' %}" class="logout-button">Log Out</a>
+                </div>
+            </header>
+            <section class="draft-container">
+                <div class="messages">
+                    {% if messages %}
+                        {% for message in messages %}
+                            <p>{{ message }}</p>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+                <div id="current-drafter" style="display: none;">{{ current_drafter }}</div>
+                <p id="drafter-turn">It's {{ current_drafter }}'s turn to draft.</p>
+
+                    <form class="draft-form" method="post" style="display: block;" onsubmit="reloadPage()">
+                        {% csrf_token %}
+                        <div>
+                            <label for="ticker">Stock Ticker:</label>
+                            <input type="text" id="ticker" name="ticker" required>
+                            <input type="hidden" id="last_drafter" name="last_drafter" value="{{current_drafter}}">
+                        </div>
+                        <button type="submit">Draft</button>
+                    </form>
+
+                <form method="post">
+                    {% csrf_token %}
+                    {% if request.user == league.owner %}
+                        <button type="submit" name="end_draft" class="end-draft-button">End Draft Early</button>
+                    {% endif %}
+                </form>
+                <div class="draft-order">
+                    <h2>Draft Order</h2>
+                    <ul>
+                        {% for user in draft_order %}
+                            <li>{{ user }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                <div class="portfolios">
+                    {% for user, assets in portfolios.items %}
+                        <div class="portfolio">
+                            <h3>{{ user }}'s Portfolio</h3>
+                            <ul>
+                                {% for asset in assets %}
+                                    <li>{{ asset.quantity }} units of {{ asset.stock.name }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    {% endfor %}
+                </div>
+            </section>
+        </div>
+    </div>
+    <script>
+        function reloadPage() {
+            setTimeout(() => {
+                window.location.reload();
+            }, 500);  // Adjust the delay as needed to ensure the form submission completes
+        }
+    </script>
+</body>
+</html>

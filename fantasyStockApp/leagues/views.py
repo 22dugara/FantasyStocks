@@ -10,7 +10,7 @@ import re
 import random
 from datetime import datetime, timedelta
 from .utils import get_user_score
-
+from trading.helpers import *
 
 
 
@@ -212,3 +212,98 @@ def join_league(request):
 @login_required
 def user_portal(request):
     return render(request, 'user_portal.html', {'username': request.user.username})
+
+
+@login_required
+def draft_view(request, league_name):
+    try:
+        league = League.objects.get(name=league_name)
+    except League.DoesNotExist:
+        return redirect('league')
+
+    if league.draftDone:
+        return redirect('league')
+
+    try:
+        league_membership = LeagueMembership.objects.get(user=request.user, league=league)
+    except LeagueMembership.DoesNotExist:
+        return redirect('league')
+
+    if not league.started:
+        return redirect('league')
+
+    # Initialize draft order if not already set
+    if not league.draft_order or league.draft_order == "none":
+        members = list(LeagueMembership.objects.filter(league=league))
+        random.shuffle(members)
+        order = [member.user.username for member in members]
+        league.draft_order = ",".join(order)
+        league.current_drafter = order[0]
+        league.save()
+        
+
+    draft_order = league.draft_order.split(",")
+
+    # Determine current drafter
+    if request.method == 'POST':
+        if 'end_draft' in request.POST and request.user == league.owner:
+            league.draftDone = True
+            league.save()
+            return redirect('matchups')
+
+        if 'ticker' in request.POST:
+            ticker = request.POST.get('ticker')
+            quantity = 1  # Drafting 1 share of the stock
+            last_drafter = request.POST.get('last_drafter')
+
+            if not validateStock(ticker):
+                messages.error(request, 'Invalid stock ticker.')
+                return redirect('draft', league_name=league_name)
+
+            stock, created = Stock.objects.get_or_create(ticker=ticker, defaults={'name': ticker, 'category': 'other'})
+            drafter_user = User.objects.get(username=last_drafter)
+            portfolio, created = Portfolio.objects.get_or_create(user=drafter_user, league=league, defaults={'cash': 100000, 'name': f"{request.user.username}'s Portfolio"})
+
+            if PortfolioAsset.objects.filter(portfolio__league=league, stock=stock).exists():
+                messages.error(request, 'This stock has already been drafted.')
+                return redirect('draft', league_name=league_name)
+
+            PortfolioAsset.objects.create(portfolio=portfolio, stock=stock, quantity=quantity, purchase_price=10)  # Assuming price is 10 for now
+
+            messages.success(request, 'Draft successful.')
+
+            # Calculate the next drafter based on the last drafter
+            print("Last Draft " + last_drafter)
+            print("Draft Order" + str(draft_order))
+            if last_drafter:
+                last_index = draft_order.index(last_drafter)
+
+                next_index = (last_index + 1) if (last_index + 1) < len(draft_order) else 0
+                print("Last Index " + str(last_index))
+                print("Next Index" + str(next_index))
+
+
+                next_drafter = draft_order[next_index]
+            else:
+                next_drafter = draft_order[0]
+            
+            print("Next Draft " + next_drafter)
+
+            league.current_drafter = next_drafter
+            league.save()
+
+            return redirect('draft', league_name=league_name)
+
+    
+
+
+    
+    portfolios = {member.user.username: Portfolio.objects.get(user=member.user, league=league).assets.all() for member in LeagueMembership.objects.filter(league=league)}
+
+    context = {
+        'league': league,
+        'draft_order': draft_order,
+        'current_drafter': league.current_drafter,
+        'portfolios': portfolios,
+    }
+    return render(request, 'draft.html', context)

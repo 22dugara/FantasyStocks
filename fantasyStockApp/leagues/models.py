@@ -12,7 +12,8 @@ class League(models.Model):
     length = models.IntegerField(default=7) 
     current_week = models.IntegerField(default=1)
     next_week_date = models.DateField(null=True, blank=True)
-
+    draft_order = models.TextField(default="")
+    current_drafter = models.TextField(default="")
     def __str__(self):
         return self.name
 
